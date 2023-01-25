@@ -157,21 +157,30 @@ RaspPiGPIOGarageDoorAccessory.prototype = {
     callback(null, this.targetState);
   },
 
-  readPin: function(pin) {
+  readPin: function (pin) {
     return rpio.read(pin);
   },
 
-  writePin: function(pin,val) {
+  writePin: function (pin, val) {
     rpio.write(this.doorSwitchPin, val);
   },
 
-  isClosed: function() {
+  delay: function (milliseconds) {
+    return new Promise(resolve => {
+      setTimeout(resolve, milliseconds);
+    });
+  },
+
+  isClosed: async function () {
     if (this.hasClosedSensor()) {
-        return this.readPin(this.closedDoorSensorPin) == this.closedDoorSensorValue;
+      let one = this.readPin(this.closedDoorSensorPin) == this.closedDoorSensorValue;
+      await this.delay(500);
+      let two = this.readPin(this.closedDoorSensorPin) == this.closedDoorSensorValue;
+      return one == two
     } else if (this.hasOpenSensor()) {
-        return !this.isOpen();
+      return !this.isOpen();
     } else {
-        return this.wasClosed;
+      return this.wasClosed;
     }
   },
 
